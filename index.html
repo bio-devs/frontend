@@ -1,0 +1,90 @@
+<head>
+  <style>
+    body {
+      margin: 0;
+    }
+  </style>
+
+  <script src="//unpkg.com/globe.gl"></script>
+  
+  
+  <!--<script src="../../dist/globe.gl.js"></script>-->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:ital,wght@0,700;1,300&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.lordicon.com/xdjxvujz.js"></script>
+
+
+<body style="background-color:#FF9D00">
+  <h1 style="font-family: 'Montserrat Alternates', sans-serif; text-align:center;"><br>/bio_developers</h1>
+  
+
+  <div id="globeViz"></div>
+
+
+
+
+
+  <script>
+    const elemento = document.createElement('br');
+   var name = "<br>";
+
+  fetch('datasets/data2.json').then(res => res.json()).then(places => {
+    Globe()
+      .globeImageUrl('img/earth-night.jpg')
+      .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
+     
+      .labelsData(places.features)
+      .labelLat(d => d.properties.latitude)
+      .labelLng(d => d.properties.longitude)
+      
+      .labelText(d => d.properties.iso_a2) 
+     // .labelText(d => d.properties.iso_a2 +   "\n" + d.properties.iso_a2 ) 
+      
+      .labelSize(d => Math.sqrt(d.properties.pop_max) * 4e-4)
+      .labelDotRadius(d => Math.sqrt(d.properties.pop_max) * 4e-4)
+      .labelColor(() => 'rgba(255, 165, 0, 0.7)')
+      
+      .labelResolution(20)
+    (document.getElementById('globeViz'))
+  });
+</script>
+
+
+<!-- 
+  <script>
+    const world = Globe()
+      (document.getElementById('globeViz'))
+      .globeImageUrl('earth-night.jpg')
+      .pointOfView({ altitude: 4 }, 1000)
+      .polygonCapColor(feat => 'rgba(200, 0, 0, 0.6)')
+      .polygonSideColor(() => 'rgba(0, 100, 0, 0.05)')
+      .polygonLabel(({ properties: d }) => `
+      <div  style="font-family: 'Montserrat Alternates', sans-serif; background-color: rgba(0,0,0,.6); color:#fff; border-radius:9px;">
+          <div style="margin-left: 10px; margin-right:10px; margin-top:10px;"><b>
+          ${d.ADMIN} (${d.ISO_A2})</b> <br />
+          Casos Clínicos: <i>${Math.round(+d.GDP_MD_EST)}</i><br />
+          Población: <i>${Math.round(+d.POP_EST / 1e4) / 1e2}M</i><br>
+          <lord-icon src="https://cdn.lordicon.com/iqocwzif.json" trigger="hover" colors="primary:#fff,secondary:#000" style="width:20px;height:20px"> </lord-icon></div>
+        </div>
+
+        
+        `);
+
+    // Auto-rotate
+    world.controls().autoRotate = true;
+    world.controls().autoRotateSpeed = 2.08;
+
+    // la siguiente linea carga los datos
+    fetch('../datasets/data.json').then(res => res.json()).then(countries => {
+      world.polygonsData(countries.features.filter(d => d.properties.ISO_A2 !== 'AQ'));
+
+      setTimeout(() => world
+        .polygonsTransitionDuration(1000)
+        .polygonAltitude(feat => Math.max(0.1, Math.sqrt(+feat.properties.Alejar) * 7e-5))
+        , 1000);
+    });
+  </script>-->
+</body>
