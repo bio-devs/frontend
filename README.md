@@ -1,5 +1,4 @@
-# <center> CoviData frontend </center>
-## <center> Interfáz grafica de la aplicación </center>
+# <p align="center"> CoviData: Interfáz grafica de la aplicación </p>
 
 
 ## ¿Cómo desplegar localmente la aplicación?
