@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Fly to a location</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.9.2/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.2/mapbox-gl.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <br>
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1Ijoicm9iZXJ0b3BhZGlsbGEiLCJhIjoiY2w1dmlpdTVnMGExcTNvcGcwdjJ1Nm5uYiJ9.4mfOVOxWaV-NBRJ-YBFInQ';
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/dark-v10',
+            center: [-74.5, 40],
+            zoom: 2,
+            projection: 'globe'
+        });
+
+        map.on('style.load', () => {
+            map.setFog({});
+        });
+
+        const secondsPerRevolution = 120;
+        const maxSpinZoom = 5;
+        const slowSpinZoom = 3;
+        let userInteracting = false;
+        let spinEnabled = true;
+        let allowLocation = false;
+
+        // Pause spinning on interaction
+        map.on('mousedown', () => {
+            userInteracting = true;
+        });
+
+        // Restart spinning the globe when interaction is complete
+        map.on('mouseup', () => {
+            userInteracting = false;
+            spinGlobe();
+        });
+
+        // When animation is complete, start spinning if there is no ongoing interaction
+        map.on('moveend', () => {
+            spinGlobe();
+        });
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(setPosition, spinGlobe);
+        }
+
+        function setPosition(position) {
+            map.flyTo({
+                center: [
+                    position.coords.longitude,
+                    position.coords.latitude
+                ],
+                zoom: 4,
+                essential: true
+            });
+            allowLocation = true;
+        }
+
+        function spinGlobe() {
+            const zoom = map.getZoom();
+            if (!allowLocation) {
+                if (spinEnabled && !userInteracting && zoom < maxSpinZoom) {
+                    let distancePerSecond = 360 / secondsPerRevolution;
+                    if (zoom > slowSpinZoom) {
+                        // Slow spinning at higher zooms
+                        const zoomDif =
+                            (maxSpinZoom - zoom) / (maxSpinZoom - slowSpinZoom);
+                        distancePerSecond *= zoomDif;
+                    }
+                    const center = map.getCenter();
+                    center.lng -= distancePerSecond;
+                    map.easeTo({ center, duration: 1000, easing: (n) => n });
+                }
+            }
+        }
+    </script>
+
+</body>
+
+</html>
