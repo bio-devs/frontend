@@ -19,6 +19,25 @@
             bottom: 0;
             width: 100%;
         }
+
+        .marker {
+            /* background-image: url('marker1.png'); */
+            background-color: rgba(255, 255, 0, 0.5);
+            background-size: cover;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .mapboxgl-popup {
+            max-width: 200px;
+        }
+
+        .mapboxgl-popup-content {
+            text-align: center;
+            font-family: 'Open Sans', sans-serif;
+        }
     </style>
 </head>
 
@@ -36,8 +55,68 @@
         });
 
         map.on('style.load', () => {
-            map.setFog({});
+            map.setFog({
+                "range": [0.01, 8],
+                "color": "#318FD4",
+                "horizon-blend": 0,
+                "high-color": "#245bde",
+                "space-color": "#000000",
+                "star-intensity": 0.04
+            });
         });
+
+        const geojson = {
+            type: 'FeatureCollection',
+            features: [
+                {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [55.18066451312415, 25.106067088437698]
+                    },
+                    properties: {
+                        staticview: "https://maps.googleapis.com/maps/api/streetview?size=200x200&location=25.106067088437698,55.18066451312415&fov=80&heading=70&pitch=0&key=AIzaSyAitnO3GWiZ7Xr3g1Q1FAtykDcszBZTJPw",
+                        title: 'Dong Hu Lu',
+                        description: '169 Donghu Road, Wuchang District, Wuhan, Hubei, China'
+                    }
+                },
+                {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [-122.414, 37.776]
+                    },
+                    properties: {
+                        staticview: "https://maps.googleapis.com/maps/api/streetview?size=200x200&location=30.5599172376607,114.36094674019095&fov=80&heading=70&pitch=0&key=AIzaSyAitnO3GWiZ7Xr3g1Q1FAtykDcszBZTJPw",
+                        title: 'Mapbox',
+                        description: 'San Francisco, California'
+                    }
+                }
+            ]
+        };
+
+        // add markers to map
+        for (const feature of geojson.features) {
+            // create a HTML element for each feature
+            const el = document.createElement('div');
+            const image = "<img src='" + feature.properties.staticview + "'>"
+            el.className = 'marker';
+
+            // make a marker for each feature and add it to the map
+            new mapboxgl.Marker(el)
+            
+                .setLngLat(feature.geometry.coordinates)
+                .setPopup(
+                    new mapboxgl.Popup({ offset: 25 }) // add popups
+                        .setHTML(
+                            `${image}
+                            <h3>${feature.properties.title}</h3><p>${feature.properties.description}</p>`
+                        )
+                )
+                .addTo(map);
+        }
+
+
 
         const secondsPerRevolution = 120;
         const maxSpinZoom = 5;
@@ -56,7 +135,6 @@
             userInteracting = false;
             spinGlobe();
         });
-
         // When animation is complete, start spinning if there is no ongoing interaction
         map.on('moveend', () => {
             spinGlobe();
@@ -95,6 +173,7 @@
                 }
             }
         }
+
     </script>
 
 </body>
